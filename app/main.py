@@ -31,40 +31,47 @@ if name:
 
     st.map(pd.DataFrame({"lat": [loc_stats.lat], "lon": [loc_stats.long]}))
 
-    col1, col2 = st.columns(2)
-    with col1:
-        # General Stats
-        st.table(loc_stats.get_general_stats().rename(columns={"key": "Stat", "value": "Value"}))
+    with st.expander("Neighbourhood Info", expanded=True):
+        col1, col2 = st.columns(2)
+        with col1:
+            # General Stats
+            st.table(loc_stats.get_general_stats().rename(columns={"key": "Stat", "value": "Value"}))
 
-        # Household income
-        income = loc_stats.get_income()
-        fig = px.bar(income, x="key", y="value", title="Household Income", labels=dict(key="Household Income", value="Number of Homes"))
-        st.plotly_chart(fig, use_container_width=True)
+            # Household income
+            income = loc_stats.get_income()
+            fig = px.bar(income, x="key", y="value", title="Household Income", labels=dict(key="Household Income", value="Number of Homes"))
+            st.plotly_chart(fig, use_container_width=True)
 
-        # Marital Status
-        st.table(loc_stats.get_marital_status().rename(columns={"key": "Marital Status", "value": "Count"}))
+            # Marital Status
+            st.table(loc_stats.get_marital_status().rename(columns={"key": "Marital Status", "value": "Count"}))
 
-        # Education Breakdown
-        educations = loc_stats.get_education()
-        fig = px.pie(educations, values='value', names='key', title='Education Level')
-        st.plotly_chart(fig)
+            # Education Breakdown
+            educations = loc_stats.get_education()
+            fig = px.pie(educations, values='value', names='key', title='Education Level')
+            st.plotly_chart(fig)
 
-    with col2:
-        # Home Built by Year
-        st.table(loc_stats.get_age_of_home_distribution().rename(columns={"key": "Year Built", "value": "Number of Homes"}))
-        
-        # Population by Age Group
-        pop = loc_stats.get_age_distribution()
-        fig = px.bar(pop, x='key', y='value', title='Population by Age Group', labels=dict(key="Age Group", value="Number of People"))
-        st.plotly_chart(fig, use_container_width= True)
+            # Language info
+            st.table(loc_stats.get_language().rename(columns={"key": "Language", "value": "Count"}).head(10))
 
-        # Children at Home
-        st.table(loc_stats.get_children_at_home().rename(columns={"key": "Age of Children", "value": "Number of Children"}))
+        with col2:
+            # Home Built by Year
+            st.table(loc_stats.get_age_of_home_distribution().rename(columns={"key": "Year Built", "value": "Number of Homes"}))
+            
+            # Population by Age Group
+            pop = loc_stats.get_age_distribution()
+            fig = px.bar(pop, x='key', y='value', title='Population by Age Group', labels=dict(key="Age Group", value="Number of People"))
+            st.plotly_chart(fig, use_container_width= True)
 
-        # Rent to own stats
-        rent_to_own = loc_stats.get_rent_or_owned()
-        fig = px.pie(rent_to_own, values='value', names='key', title='Proportion of rentals vs. owned Properties', labels=dict(key="Type of Property"))
-        st.plotly_chart(fig)
+            # Children at Home
+            st.table(loc_stats.get_children_at_home().rename(columns={"key": "Age of Children", "value": "Number of Children"}))
+
+            # Rent to own stats
+            rent_to_own = loc_stats.get_rent_or_owned()
+            fig = px.pie(rent_to_own, values='value', names='key', title='Proportion of rentals vs. owned Properties', labels=dict(key="Type of Property"))
+            st.plotly_chart(fig)
+
+            # Job Info
+            st.table(loc_stats.get_occupations().rename(columns={"key": "Job", "value": "Number of People"}))
 
     sold_history = zolo_info.get_sold_history()
     
