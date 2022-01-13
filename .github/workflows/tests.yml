@@ -5,9 +5,27 @@ name: Python application
 
 on:
   push:
+    paths-ignore:
+      - "Dockerfile"
+      - "*.md"
+      - "notebooks/**"
+      - "app/**"
+      - ".streamlit/**"
+      - ".gitignore"
     branches: [ main ]
   pull_request:
+    paths-ignore:
+      - "Dockerfile"
+      - "*.md"
+      - "notebooks/**"
+      - "app/**"
+      - ".streamlit/**"
+      - ".gitignore"
     branches: [ main ]
+
+env:
+  GOOGLE_GEOCODING_API_KEY: ${{secrets.GOOGLE_GEOCODING_API_KEY}}
+  RAPID_API_KEY: ${{secrets.RAPID_API_KEY}}
 
 jobs:
   build:
