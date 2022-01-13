@@ -1,11 +1,26 @@
 # Real-estate-hub
 Get information about a neighbourhood, home or area.
 
-Environment variables requires:
-- GOOGLE_GEOCODING_API_KEY
-- RAPID_API_KEY
+Displays the following stats:
+- General stats
+- Age of homes in the area
+- Household Income
+- Population by Age Group
+- Marital Status
+- Age of Children
+- Education Level
+- Rental vs Owned Properties
+- Languages
+- Jobs of residents
+
+If searching a household:
+- Sold history
 
 ## How to Run
+
+Environment variables required:
+- GOOGLE_GEOCODING_API_KEY
+- RAPID_API_KEY
 
 ### Local Dev
 
