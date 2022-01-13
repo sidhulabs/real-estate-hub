@@ -1,5 +1,5 @@
-# Real-estate-hub
-Get information about a neighbourhood, home or area.
+# Real Estate Hub
+Get information about a neighbourhood, home or area. Useful when looking at new homes to buy.
 
 Displays the following stats:
 - General stats
