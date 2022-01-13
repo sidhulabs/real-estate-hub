@@ -1,4 +1,6 @@
 # Real Estate Hub
+[![Tests](https://github.com/sidhulabs/real-estate-hub/actions/workflows/tests.yml/badge.svg)](https://github.com/sidhulabs/real-estate-hub/actions/workflows/tests.yml)
+
 Get information about a neighbourhood, home or area. Useful when looking at new homes to buy.
 
 Displays the following stats:
