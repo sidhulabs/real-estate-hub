@@ -1,26 +1,37 @@
-import pandas as pd
-import requests
 import os
 from datetime import datetime
+from typing import Any, Dict
+
+import pandas as pd
+import requests
 from loguru import logger
-from typing import Dict, Any
+
 
 class LocationStatsGenerator(object):
+    def __init__(
+        self,
+        location: str,
+        google_api_key: str = os.environ.get("GOOGLE_GEOCODING_API_KEY"),
+        rapid_api_key: str = os.environ.get("RAPID_API_KEY"),
+    ) -> None:
 
-    def __init__(self, location: str, google_api_key: str = os.environ.get("GOOGLE_GEOCODING_API_KEY"), rapid_api_key: str = os.environ.get("RAPID_API_KEY")) -> None:
-        
         self.location = location
-        self.google_api_key = google_api_key 
+        self.google_api_key = google_api_key
         self.rapid_api_key = rapid_api_key
         self.google_geocode_url = "https://maps.googleapis.com/maps/api/geocode/json"
         self.rapid_api_realtor_host = "realty-in-ca1.p.rapidapi.com"
         self.rapid_api_realtor_url = f"https://{self.rapid_api_realtor_host}/properties/get-statistics"
 
-        assert self.google_api_key, "Please set the GOOGLE_GEOCODING_API_KEY environment variable or pass in the API key."
+        assert (
+            self.google_api_key
+        ), "Please set the GOOGLE_GEOCODING_API_KEY environment variable or pass in the API key."
         assert self.rapid_api_key, "Please set the RAPID_API_KEY environment variable or pass in the API key."
 
         self.lat, self.long = self._get_long_lat()
         self.location_data = self._get_location_data()
+        self.as_of_date = datetime.strptime(
+            self.location_data["ErrorCode"]["ProductName"].split("[")[-1].replace("]", ""), "%A, %B %d, %Y %I:%M:%S %p"
+        ).strftime("%Y-%m-%d")
 
     def get_general_stats(self) -> pd.DataFrame:
         return pd.DataFrame(self._get_nested_data(0))
@@ -38,7 +49,11 @@ class LocationStatsGenerator(object):
         return pd.DataFrame(self._get_nested_data(5))
 
     def get_language(self) -> pd.DataFrame:
-        return pd.DataFrame(self._get_nested_data(6)).astype(dtype={"value": "int"}).sort_values(by=["value"], ascending=False)
+        return (
+            pd.DataFrame(self._get_nested_data(6))
+            .astype(dtype={"value": "int"})
+            .sort_values(by=["value"], ascending=False)
+        )
 
     def get_income(self) -> pd.DataFrame:
         return pd.DataFrame(self._get_nested_data(7)).astype(dtype={"value": "int"})
@@ -53,8 +68,12 @@ class LocationStatsGenerator(object):
         return pd.DataFrame(self._get_nested_data(10))
 
     def get_occupations(self) -> pd.DataFrame:
-        return pd.DataFrame(self._get_nested_data(11)).astype(dtype={"value": "int"}).sort_values(by=["value"], ascending=False)
-    
+        return (
+            pd.DataFrame(self._get_nested_data(11))
+            .astype(dtype={"value": "int"})
+            .sort_values(by=["value"], ascending=False)
+        )
+
     @logger.catch
     def upload_to_elasticsearch(self, es_client):
         pass
@@ -95,7 +114,7 @@ class LocationStatsGenerator(object):
             location (str): City, postal code or address.
         """
 
-        params = {'address': self.location, 'key': self.google_api_key} 
+        params = {"address": self.location, "key": self.google_api_key}
 
         # sending get request and saving the response as response object
         r = requests.get(url=self.google_geocode_url, params=params)
@@ -104,9 +123,9 @@ class LocationStatsGenerator(object):
         data = r.json()
 
         # location
-        location_dict = data['results'][0]['geometry']['location']
-        lattitude = location_dict['lat']
-        longitude = location_dict['lng']
+        location_dict = data["results"][0]["geometry"]["location"]
+        lattitude = location_dict["lat"]
+        longitude = location_dict["lng"]
 
         return lattitude, longitude
 
@@ -118,23 +137,16 @@ class LocationStatsGenerator(object):
         Args:
             lat (float): Longitude.
             long (float): Latitude.
-        """ 
+        """
 
-        querystring = {
-            "CultureId":"1", # return in english
-            "Latitude": str(self.lat),
-            "Longitude": str(self.long)
-        }
+        querystring = {"CultureId": "1", "Latitude": str(self.lat), "Longitude": str(self.long)}  # return in english
 
         # header
-        headers = {
-            'x-rapidapi-host': self.rapid_api_realtor_host,
-            'x-rapidapi-key': self.rapid_api_key
-        }
+        headers = {"x-rapidapi-host": self.rapid_api_realtor_host, "x-rapidapi-key": self.rapid_api_key}
 
         # response
         response = requests.request("GET", self.rapid_api_realtor_url, headers=headers, params=querystring)
-        return response.json() # json format
+        return response.json()  # json format
 
     def _get_nested_data(self, index: int) -> Dict[str, Any]:
         """
@@ -147,9 +159,9 @@ class LocationStatsGenerator(object):
         Returns:
             Dict[str, Any]: Nested data.
         """
-        
+
         try:
-            return pd.DataFrame(self.location_data['Data'][index]['value'])
+            return pd.DataFrame(self.location_data["Data"][index]["value"])
         except IndexError:
             logger.error(f"Could not get nested data at index {index} from `Data` field: {self.location_data}")
             return None

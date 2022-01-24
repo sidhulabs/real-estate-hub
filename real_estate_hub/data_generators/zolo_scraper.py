@@ -1,18 +1,20 @@
 from __future__ import annotations
 
-import requests
 import string
+
 import pandas as pd
+import requests
 from loguru import logger
 
 
 class ZoloScraper(object):
-    
     def __init__(self, address: str):
-        self.url = 'https://www.zolo.ca/toronto-real-estate'
+        self.url = "https://www.zolo.ca/toronto-real-estate"
         self.address = address
 
-        self.search_address = self.address.lower().translate(str.maketrans('', '', string.punctuation)).replace(" ", "-")
+        self.search_address = (
+            self.address.lower().translate(str.maketrans("", "", string.punctuation)).replace(" ", "-")
+        )
 
         headers = {
             "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86.0",
@@ -49,22 +51,15 @@ class ZoloScraper(object):
         except ValueError:
             logger.warning(f"No Sold History found for {self.search_address}")
             return None
-        
+
         df = df_tables[0]
 
         if 0 in df.columns:
             df = df.drop(columns=[0])
 
         df = df[df["Price"].astype("string").str.startswith("$") | df["Price"].isna()]
-        
+
         df.columns = ["MLS #", "Date", "Event", "Price"]
         df["MLS #"] = df["MLS #"].ffill()
 
         return df
-
-
-        
-
-
-
-        
