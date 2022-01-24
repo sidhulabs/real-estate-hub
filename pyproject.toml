@@ -16,6 +16,7 @@ html5lib = "^1.1"
 prefect = {version = "0.15.11", optional = true}
 sidhulabs = "^2022.1.23"
 streamlit = {version = "^1.4.0", optional = true}
+requests = "<2.27"
 
 [tool.poetry.extras]
 etl = ["prefect"]
