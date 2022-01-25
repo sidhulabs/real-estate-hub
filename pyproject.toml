@@ -17,6 +17,7 @@ prefect = {version = "0.15.11", optional = true}
 sidhulabs = "^2022.1.23"
 streamlit = {version = "^1.4.0", optional = true}
 requests = "<2.27"
+StrEnum = "^0.4.7"
 
 [tool.poetry.extras]
 etl = ["prefect"]

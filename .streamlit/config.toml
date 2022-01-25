@@ -177,7 +177,7 @@ showPyplotGlobalUse = true
 # The "subdirectory" within the S3 bucket where to save apps.
 # S3 calls paths "keys" which is why the keyPrefix is like a subdirectory. Use "" to mean the root directory.
 # Default: ""
-keyPrefix = ""
+# keyPrefix = ""
 
 # AWS region where the bucket is located, e.g. "us-west-2".
 # Default: (unset)

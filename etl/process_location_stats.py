@@ -54,11 +54,8 @@ def get_data(locations: List[str]) -> List[Dict[str, Any]]:
     for location in locations:
         logger.info(f"Getting data for {location}")
         loc = LocationStatsGenerator(location)
-        loc_data = loc.location_data
-        loc_data["location"] = location
-        loc_data["asof_date"] = datetime.strptime(loc.as_of_date, "%Y-%m-%d").date()
-        loc_data["processed_date"] = datetime.now()
-        data.append(loc_data)
+        loc.enhance_location_data()
+        data.append(loc.location_data)
 
     return data
 

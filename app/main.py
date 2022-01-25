@@ -1,7 +1,10 @@
+import _thread
+
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 from loguru import logger
+from sidhulabs.elastic.client import get_elastic_client
 
 from real_estate_hub.data_generators.location_stats import LocationStatsGenerator
 from real_estate_hub.data_generators.zolo_scraper import ZoloScraper
@@ -10,10 +13,11 @@ st.set_page_config(layout="wide", page_title="Real Estate Hub")
 st.title("Sidhu Lab's Real Estate Hub")
 
 
-@st.cache(show_spinner=True)
+@st.cache(show_spinner=True, hash_funcs={_thread.LockType: id})
 def get_data_generator(name: str) -> LocationStatsGenerator:
     logger.info(f"Getting data for {name}")
-    return LocationStatsGenerator(name)
+    es_client = get_elastic_client("https://elastic.sidhulabs.ca")
+    return LocationStatsGenerator(name, es_client=es_client)
 
 
 @st.cache(show_spinner=True)
@@ -55,7 +59,7 @@ if name:
             # Education Breakdown
             educations = loc_stats.get_education()
             fig = px.pie(educations, values="value", names="key", title="Education Level")
-            st.plotly_chart(fig)
+            st.plotly_chart(fig, use_container_width=True)
 
             # Language info
             st.table(loc_stats.get_language().rename(columns={"key": "Language", "value": "Count"}).head(10))
@@ -95,7 +99,7 @@ if name:
                 title="Proportion of rentals vs. owned Properties",
                 labels=dict(key="Type of Property"),
             )
-            st.plotly_chart(fig)
+            st.plotly_chart(fig, use_container_width=True)
 
             # Job Info
             st.table(loc_stats.get_occupations().rename(columns={"key": "Job", "value": "Number of People"}))
