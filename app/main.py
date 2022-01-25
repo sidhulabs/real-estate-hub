@@ -14,25 +14,25 @@ st.title("Sidhu Lab's Real Estate Hub")
 
 
 @st.cache(show_spinner=True, hash_funcs={_thread.LockType: id})
-def get_data_generator(name: str) -> LocationStatsGenerator:
-    logger.info(f"Getting data for {name}")
+def get_data_generator(location: str) -> LocationStatsGenerator:
+    logger.info(f"Getting data for {location}")
     es_client = get_elastic_client("https://elastic.sidhulabs.ca")
-    return LocationStatsGenerator(name, es_client=es_client)
+    return LocationStatsGenerator(location, es_client=es_client)
 
 
 @st.cache(show_spinner=True)
 def get_zolo_scraper(address: str) -> ZoloScraper:
-    logger.info(f"Getting data for {address}")
+    logger.info(f"Getting data for {address} from Zolo")
     return ZoloScraper(address)
 
 
-name = st.text_input("Address, City, or Postal Code", autocomplete="on")
+location = st.text_input("Address, City, or Postal Code", autocomplete="on")
 
-if name:
-    loc_stats = get_data_generator(name)
-    zolo_info = get_zolo_scraper(name)
+if location:
+    loc_stats = get_data_generator(location)
+    zolo_info = get_zolo_scraper(location)
 
-    st.subheader(f"Location Stats for {name} as of {loc_stats.as_of_date}")
+    st.subheader(f"Location Stats for {location} as of {loc_stats.as_of_date}")
 
     st.map(pd.DataFrame({"lat": [loc_stats.lat], "lon": [loc_stats.long]}))
 

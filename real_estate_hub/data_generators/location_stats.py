@@ -62,7 +62,10 @@ class LocationStatsGenerator(object):
 
             if self.es_client:
                 logger.info("Uploading data to Elasticsearch")
-                self.es_client.index(index="location_stats", doc_type="_doc", body=self.location_data)
+                try:
+                    self.es_client.index(index="location_stats", doc_type="_doc", body=self.location_data)
+                except Exception as e:
+                    logger.error("Could not upload data to Elasticsearch: {e}")
 
         self.as_of_date = self.location_data["asof_date"]
         self.long = self.location_data["longitude"]
