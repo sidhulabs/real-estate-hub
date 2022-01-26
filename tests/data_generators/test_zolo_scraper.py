@@ -1,6 +1,6 @@
 import pytest
 
-from real_estate_hub.data_generators.zolo_scraper import ZoloScraper
+from real_estate_hub.data_feeds.web.zolo_scraper import ZoloScraper
 
 
 @pytest.fixture(scope="session")

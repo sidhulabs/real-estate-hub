@@ -24,7 +24,7 @@ on:
     branches: [ main ]
 
 env:
-  GOOGLE_GEOCODING_API_KEY: ${{secrets.GOOGLE_GEOCODING_API_KEY}}
+  GOOGLE_API_KEY: ${{secrets.GOOGLE_API_KEY}}
   RAPID_API_KEY: ${{secrets.RAPID_API_KEY}}
 
 jobs:

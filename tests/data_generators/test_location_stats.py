@@ -1,16 +1,11 @@
 import pytest
 
-from real_estate_hub.data_generators.location_stats import LocationStatsGenerator
+from real_estate_hub.data_feeds.location_stats import LocationStatsGenerator
 
 
 @pytest.fixture(scope="session")
-def location():
-    return "Riverdale, ON"
-
-
-@pytest.fixture(scope="session")
-def loc_data_generator(location) -> LocationStatsGenerator:
-    return LocationStatsGenerator(location)
+def loc_data_generator() -> LocationStatsGenerator:
+    return LocationStatsGenerator("Riverdale, ON", 43.678985, -79.34491009999999)
 
 
 def test_get_general_stats(loc_data_generator):

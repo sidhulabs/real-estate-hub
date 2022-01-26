@@ -10,5 +10,5 @@ class Config(StrEnum):
 
     RAPID_API_REALTOR_HOST = "realty-in-ca1.p.rapidapi.com"
 
-    GOOGLE_GEOCODING_URL = "https://maps.googleapis.com/maps/api/geocode/json"
+    GOOGLE_MAPS_API_URL = "https://maps.googleapis.com/maps/api"
     GOOGLE_GEO_FILTERING_COMPONENTS = "country:CA|locality:ON"

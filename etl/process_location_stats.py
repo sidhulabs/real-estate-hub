@@ -1,6 +1,5 @@
 import os
 from collections import deque
-from datetime import datetime
 from typing import Any, Dict, List
 
 import prefect
@@ -11,7 +10,8 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import Docker
 from sidhulabs.elastic.client import get_elastic_client
 
-from real_estate_hub.data_generators.location_stats import LocationStatsGenerator
+from real_estate_hub.data_feeds.google.directions import GoogleDirections
+from real_estate_hub.data_feeds.location_stats import LocationStatsGenerator
 
 DOCKER_IMAGE = "bigsidhu/real-estate-hub"
 
@@ -22,7 +22,7 @@ storage = Docker(
 run_config = KubernetesRun(
     image=f"{DOCKER_IMAGE}:{storage.image_tag}",
     env={
-        "GOOGLE_GEOCODING_API_KEY": os.environ.get("GOOGLE_GEOCODING_API_KEY"),
+        "GOOGLE_API_KEY": os.environ.get("GOOGLE_API_KEY"),
         "RAPID_API_KEY": os.environ.get("RAPID_API_KEY"),
         "ELASTIC_API_ID": os.environ.get("ELASTIC_API_ID"),
         "ELASTIC_API_KEY": os.environ.get("ELASTIC_API_KEY"),
@@ -53,7 +53,8 @@ def get_data(locations: List[str]) -> List[Dict[str, Any]]:
     # Not parallel since I'm cheap and  using a free API which has a request limit :)
     for location in locations:
         logger.info(f"Getting data for {location}")
-        loc = LocationStatsGenerator(location)
+        google_directions = GoogleDirections(location)
+        loc = LocationStatsGenerator(location, google_directions.lat, google_directions.long)
         loc.enhance_location_data()
         data.append(loc.location_data)
 

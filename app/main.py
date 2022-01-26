@@ -6,18 +6,19 @@ import streamlit as st
 from loguru import logger
 from sidhulabs.elastic.client import get_elastic_client
 
-from real_estate_hub.data_generators.location_stats import LocationStatsGenerator
-from real_estate_hub.data_generators.zolo_scraper import ZoloScraper
+from real_estate_hub.data_feeds.google.directions import GoogleDirections
+from real_estate_hub.data_feeds.location_stats import LocationStatsGenerator
+from real_estate_hub.data_feeds.web.zolo_scraper import ZoloScraper
 
 st.set_page_config(layout="wide", page_title="Real Estate Hub")
 st.title("Sidhu Lab's Real Estate Hub")
 
 
 @st.cache(show_spinner=True, hash_funcs={_thread.LockType: id})
-def get_data_generator(location: str) -> LocationStatsGenerator:
+def get_data_generator(location: str, lat: float, long: float) -> LocationStatsGenerator:
     logger.info(f"Getting data for {location}")
     es_client = get_elastic_client("https://elastic.sidhulabs.ca")
-    return LocationStatsGenerator(location, es_client=es_client)
+    return LocationStatsGenerator(location, lat, long, es_client=es_client)
 
 
 @st.cache(show_spinner=True)
@@ -26,13 +27,25 @@ def get_zolo_scraper(address: str) -> ZoloScraper:
     return ZoloScraper(address)
 
 
+@st.cache(show_spinner=True)
+def get_google_directions(location: str) -> GoogleDirections:
+    logger.info(f"Getting data for {location} from Google")
+    return GoogleDirections(location)
+
+
 location = st.text_input("Address, City, or Postal Code", autocomplete="on")
 
 if location:
-    loc_stats = get_data_generator(location)
+    try:
+        google_directions = get_google_directions(location)
+    except Exception as e:
+        st.error("Address not found!")
+        st.stop()
+
+    loc_stats = get_data_generator(location, google_directions.lat, google_directions.long)
     zolo_info = get_zolo_scraper(location)
 
-    st.subheader(f"Location Stats for {location} as of {loc_stats.as_of_date}")
+    st.subheader(f"Location Stats for {location.capitalize()} as of {loc_stats.as_of_date}")
 
     st.map(pd.DataFrame({"lat": [loc_stats.lat], "lon": [loc_stats.long]}))
 
@@ -109,3 +122,11 @@ if location:
     if sold_history is not None:
         with st.expander("Sold History"):
             st.table(sold_history)
+
+    with st.expander("Commute Times"):
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.metric("Driving to Union", google_directions.driving_commute_time)
+        with col2:
+            st.metric("Transit to Union", google_directions.transit_commute_time)

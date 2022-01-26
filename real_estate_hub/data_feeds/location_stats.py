@@ -14,22 +14,20 @@ class LocationStatsGenerator(object):
     def __init__(
         self,
         location: str,
-        google_api_key: str = os.environ.get("GOOGLE_GEOCODING_API_KEY"),
+        latitude: float,
+        longitude: float,
         rapid_api_key: str = os.environ.get("RAPID_API_KEY"),
         es_client: Elasticsearch = None,
     ) -> None:
 
         self.location = location
-        self.google_api_key = google_api_key
+        self.lat = latitude
+        self.long = longitude
         self.rapid_api_key = rapid_api_key
-        self.google_geocode_url = Config.GOOGLE_GEOCODING_URL
         self.rapid_api_realtor_host = Config.RAPID_API_REALTOR_HOST
         self.rapid_api_realtor_url = f"https://{self.rapid_api_realtor_host}/properties/get-statistics"
         self.es_client = es_client
 
-        assert (
-            self.google_api_key
-        ), "Please set the GOOGLE_GEOCODING_API_KEY environment variable or pass in the API key."
         assert self.rapid_api_key, "Please set the RAPID_API_KEY environment variable or pass in the API key."
 
         results = {"hits": {"hits": []}}
@@ -40,7 +38,12 @@ class LocationStatsGenerator(object):
                     body={
                         "size": 1,
                         "sort": [{"asof_date": {"order": "desc"}}],
-                        "query": {"match": {"location": f"{self.location}*"}},
+                        "query": {
+                            "bool": {
+                                "must": [{"match": {"location": f"{self.location}*"}}],
+                                "filter": [{"range": {"processed_date": {"gte": "now-30d"}}}],
+                            }
+                        },
                     },
                 )
             except Exception as e:
@@ -51,7 +54,6 @@ class LocationStatsGenerator(object):
             self.location_data = results["hits"]["hits"][0]["_source"]
         else:
             logger.info("Location {location} not found in Elasticsearch. Retrieving data from API.")
-            self.lat, self.long = self._get_long_lat()
             self.location_data = self._get_location_data()
             self.as_of_date = datetime.strptime(
                 self.location_data["ErrorCode"]["ProductName"].split("[")[-1].replace("]", ""),
@@ -68,8 +70,6 @@ class LocationStatsGenerator(object):
                     logger.error("Could not upload data to Elasticsearch: {e}")
 
         self.as_of_date = self.location_data["asof_date"]
-        self.long = self.location_data["longitude"]
-        self.lat = self.location_data["latitude"]
 
     def get_general_stats(self) -> pd.DataFrame:
         return pd.DataFrame(self._get_nested_data(0))
@@ -153,34 +153,6 @@ class LocationStatsGenerator(object):
             raise ValueError(f"Could not find data from Realtor API for {self.location}.")
 
         return data
-
-    @logger.catch
-    def _get_long_lat(self):
-        """
-        Get latitude and longitude for a city.
-
-        Args:
-            location (str): City, postal code or address.
-        """
-
-        params = {
-            "address": self.location,
-            "key": self.google_api_key,
-            "components": Config.GOOGLE_GEO_FILTERING_COMPONENTS,
-        }
-
-        # sending get request and saving the response as response object
-        r = requests.get(url=self.google_geocode_url, params=params)
-
-        # get data from response
-        data = r.json()
-
-        # location
-        location_dict = data["results"][0]["geometry"]["location"]
-        lattitude = location_dict["lat"]
-        longitude = location_dict["lng"]
-
-        return lattitude, longitude
 
     @logger.catch
     def _get_location_stats(self):
