@@ -40,7 +40,7 @@ class LocationStatsGenerator(object):
                         "sort": [{"asof_date": {"order": "desc"}}],
                         "query": {
                             "bool": {
-                                "must": [{"match": {"location": f"{self.location}*"}}],
+                                "must": [{"match_phrase": {"location": f"{self.location}"}}],
                                 "filter": [{"range": {"processed_date": {"gte": "now-30d"}}}],
                             }
                         },
