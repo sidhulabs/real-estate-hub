@@ -56,7 +56,7 @@ class LocationStatsGenerator(object):
             logger.info("Location {location} not found in Elasticsearch. Retrieving data from API.")
             self.location_data = self._get_location_data()
             self.as_of_date = datetime.strptime(
-                self.location_data["ErrorCode"]["ProductName"].split("[")[-1].replace("]", ""),
+                self.location_data["ErrorCode"]["ProductName"].split("|")[-1].strip(),
                 "%A, %B %d, %Y %I:%M:%S %p",
             ).strftime("%Y-%m-%d")
 

@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: real-estate-hub
+  namespace: default
+spec:
+  rules:
+  - host: realestate.sidhulabs.ca
+    http:
+      paths:
+      - backend:
+          service:
+            name: real-estate-hub
+            port:
+              number: 8501
+        pathType: ImplementationSpecific
+status:
+  loadBalancer:
+    ingress:
+    - ip: 10.10.1.51
+    - ip: 10.10.1.52
+    - ip: 10.10.1.53
+    - ip: 10.10.1.54

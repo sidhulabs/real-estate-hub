@@ -55,7 +55,6 @@ def get_data(locations: List[str]) -> List[Dict[str, Any]]:
         logger.info(f"Getting data for {location}")
         google_directions = GoogleDirections(location)
         loc = LocationStatsGenerator(location, google_directions.lat, google_directions.long)
-        loc.enhance_location_data()
         data.append(loc.location_data)
 
     return data
@@ -71,7 +70,7 @@ with Flow("location-stats-etl", storage=storage, run_config=run_config) as flow:
 
     locations = Parameter("locations", required=True)
 
-    es_client = task(get_elastic_client)("https://elastic.sidhulabs.ca")
+    es_client = task(get_elastic_client)("https://elastic.sidhulabs.ca:443")
     conn_success = test_es_client(es_client)
 
     locations_data = get_data(locations)
