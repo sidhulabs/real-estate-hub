@@ -12,6 +12,7 @@ on:
       - "app/**"
       - ".streamlit/**"
       - ".gitignore"
+      - "manifests/**"
     branches: [ main ]
   pull_request:
     paths-ignore:
@@ -21,6 +22,7 @@ on:
       - "app/**"
       - ".streamlit/**"
       - ".gitignore"
+      - "manifests/**"
     branches: [ main ]
 
 env:
