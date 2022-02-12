@@ -14,7 +14,7 @@ spec:
         app: real-estate-hub
     spec:
       containers:
-        - image: docker.io/bigsidhu/real-estate-hub:950c155c33a9827cbf9ef9d710e7759bd4601d26
+        - image: docker.io/bigsidhu/real-estate-hub:c7c3746169c1a5f4ed48f481d4f9db0c08609540
           name: real-estate-hub
           imagePullPolicy: Always
           command: ["streamlit", "run", "app/main.py"]
@@ -70,3 +70,7 @@ spec:
       name: tcpport5601
   selector:
     app: real-estate-hub
+  template:
+    spec:
+      containers:
+        - image: docker.io/bigsidhu/real-estate-hub:c7c3746169c1a5f4ed48f481d4f9db0c08609540
