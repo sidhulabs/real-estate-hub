@@ -1,5 +1,5 @@
 # Real Estate Hub
-[![Tests](https://github.com/sidhulabs/real-estate-hub/actions/workflows/tests.yml/badge.svg)](https://github.com/sidhulabs/real-estate-hub/actions/workflows/tests.yml)
+[![Tests](https://github.com/sidhulabs/real-estate-hub/actions/workflows/tests.yml/badge.svg)](https://github.com/sidhulabs/real-estate-hub/actions/workflows/tests.yml) [![Build and Publish Docker Image](https://github.com/sidhulabs/real-estate-hub/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/sidhulabs/real-estate-hub/actions/workflows/docker-publish.yml)
 
 Get information about a neighbourhood, home or area in Canada. Useful when looking at new homes to buy. It uses various API's to aggregate info into one place.
 
