@@ -1,6 +1,8 @@
 import _thread
+import ssl
 
 import elastic_transport
+import elasticsearch
 import pandas as pd
 import plotly.express as px
 import streamlit as st
@@ -15,7 +17,16 @@ st.set_page_config(layout="wide", page_title="Real Estate Hub")
 st.title("Sidhu Lab's Real Estate Hub")
 
 
-@st.cache(show_spinner=True, hash_funcs={elastic_transport.HttpHeaders: id, _thread.LockType: id, _thread._local: id})
+@st.cache(
+    show_spinner=True,
+    hash_funcs={
+        elastic_transport.HttpHeaders: id,
+        _thread.LockType: id,
+        _thread._local: id,
+        ssl.SSLContext: id,
+        elasticsearch._sync.client.xpack.XPackClient: id,
+    },
+)
 def get_data_generator(location: str, lat: float, long: float) -> LocationStatsGenerator:
     logger.info(f"Getting data for {location}")
     es_client = get_elastic_client("https://elastic.sidhulabs.ca:443")
@@ -34,9 +45,7 @@ def get_google_directions(location: str) -> GoogleDirections:
     return GoogleDirections(location)
 
 
-location = st.text_input("Address, City, or Postal Code", autocomplete="on")
-
-if location:
+if location := st.text_input("Address, City, or Postal Code", autocomplete="on"):
     try:
         google_directions = get_google_directions(location)
     except Exception as e:
