@@ -17,7 +17,7 @@ st.title("Sidhu Lab's Real Estate Hub")
 @st.cache(show_spinner=True, hash_funcs={_thread.LockType: id})
 def get_data_generator(location: str, lat: float, long: float) -> LocationStatsGenerator:
     logger.info(f"Getting data for {location}")
-    es_client = get_elastic_client("https://elastic.sidhulabs.ca")
+    es_client = get_elastic_client("https://elastic.sidhulabs.ca:443")
     return LocationStatsGenerator(location, lat, long, es_client=es_client)
 
 
