@@ -1,3 +1,5 @@
+import _thread
+
 import elastic_transport
 import pandas as pd
 import plotly.express as px
@@ -13,7 +15,7 @@ st.set_page_config(layout="wide", page_title="Real Estate Hub")
 st.title("Sidhu Lab's Real Estate Hub")
 
 
-@st.cache(show_spinner=True, hash_funcs={elastic_transport.HttpHeaders: id})
+@st.cache(show_spinner=True, hash_funcs={elastic_transport.HttpHeaders: id, _thread._local: id})
 def get_data_generator(location: str, lat: float, long: float) -> LocationStatsGenerator:
     logger.info(f"Getting data for {location}")
     es_client = get_elastic_client("https://elastic.sidhulabs.ca:443")
