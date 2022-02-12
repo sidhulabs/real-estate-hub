@@ -14,47 +14,47 @@ spec:
         app: real-estate-hub
     spec:
       containers:
-      - image: docker.io/bigsidhu/real-estate-hub:0.5
-        name: real-estate-hub
-        imagePullPolicy: Always
-        command: ["streamlit", "run", "app/main.py"]
-        env:
-        - name: GOOGLE_API_KEY
-          valueFrom:
-            secretKeyRef:
-              key: GOOGLE_API_KEY
-              name: google
-              optional: false
-        - name: RAPID_API_KEY
-          valueFrom:
-            secretKeyRef:
-              key: RAPID_API_KEY
-              name: rapid-api
-              optional: false
-        - name: ELASTIC_API_ID
-          valueFrom:
-            secretKeyRef:
-              key: ELASTIC_API_ID
-              name: es-keys
-              optional: false
-        - name: ELASTIC_API_KEY
-          valueFrom:
-            secretKeyRef:
-              key: ELASTIC_API_KEY
-              name: es-keys
-              optional: false
-        livenessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /
-            port: 8501
-            scheme: HTTP
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 1
-        ports:
-        - containerPort: 8501
-          name: 8501tcpport
+        - image: docker.io/bigsidhu/real-estate-hub:docker.io/bigsidhu/real-estate-hub:main
+          name: real-estate-hub
+          imagePullPolicy: Always
+          command: ["streamlit", "run", "app/main.py"]
+          env:
+            - name: GOOGLE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: GOOGLE_API_KEY
+                  name: google
+                  optional: false
+            - name: RAPID_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: RAPID_API_KEY
+                  name: rapid-api
+                  optional: false
+            - name: ELASTIC_API_ID
+              valueFrom:
+                secretKeyRef:
+                  key: ELASTIC_API_ID
+                  name: es-keys
+                  optional: false
+            - name: ELASTIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: ELASTIC_API_KEY
+                  name: es-keys
+                  optional: false
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8501
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          ports:
+            - containerPort: 8501
+              name: 8501tcpport
       restartPolicy: Always
       dnsPolicy: Default
 ---
@@ -65,8 +65,12 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 8501
-    targetPort: 8501
-    name: tcpport5601
+    - port: 8501
+      targetPort: 8501
+      name: tcpport5601
   selector:
     app: real-estate-hub
+  template:
+    spec:
+      containers:
+        - image: docker.io/bigsidhu/real-estate-hub:docker.io/bigsidhu/real-estate-hub:main
