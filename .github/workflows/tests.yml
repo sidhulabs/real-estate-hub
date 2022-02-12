@@ -4,15 +4,6 @@
 name: Python application
 
 on:
-  push:
-    paths-ignore:
-      - "Dockerfile"
-      - "*.md"
-      - "notebooks/**"
-      - "app/**"
-      - ".streamlit/**"
-      - ".gitignore"
-    branches: [ main ]
   pull_request:
     paths-ignore:
       - "Dockerfile"
