@@ -57,20 +57,3 @@ spec:
               name: 8501tcpport
       restartPolicy: Always
       dnsPolicy: Default
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: real-estate-hub
-spec:
-  type: ClusterIP
-  ports:
-    - port: 8501
-      targetPort: 8501
-      name: tcpport5601
-  selector:
-    app: real-estate-hub
-  template:
-    spec:
-      containers:
-        - image: docker.io/bigsidhu/real-estate-hub:c7c3746169c1a5f4ed48f481d4f9db0c08609540
