@@ -59,7 +59,7 @@ update_doc = False
 if location := st.text_input("Address, City, or Postal Code"):
 
     results = es_client.search(
-        index="location_stats_test",
+        index=Config.ELASTICSEARCH_INDEX,
         size=1,
         sort=[{"location_stats.asof_date": {"order": "desc"}}],
         query={
@@ -235,10 +235,10 @@ if location := st.text_input("Address, City, or Postal Code"):
     # Create new Elasticsearch document if the search is new
     if non_existing_es_doc:
         logger.info(f"Inserting new doc for for {location} into Elasticsearch")
-        es_client.index(index="location_stats_test", document=doc)
+        es_client.index(index=Config.ELASTICSEARCH_INDEX, document=doc)
 
     # Update existing Elasticsearch document if some data is missing
     if existing_es_doc and update_doc:
         logger.info(f"Updating existing doc for {location} in Elasticsearch")
 
-        es_client.index(index="location_stats_test", document=doc, id=results["hits"]["hits"][0]["_id"])
+        es_client.index(index=Config.ELASTICSEARCH_INDEX, document=doc, id=results["hits"]["hits"][0]["_id"])
