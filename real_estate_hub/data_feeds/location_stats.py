@@ -4,7 +4,6 @@ from typing import Any, Dict
 
 import pandas as pd
 import requests
-from elasticsearch import Elasticsearch
 from loguru import logger
 
 from real_estate_hub.config import Config
@@ -13,61 +12,29 @@ from real_estate_hub.config import Config
 class LocationStatsGenerator(object):
     def __init__(
         self,
-        location: str,
         latitude: float,
         longitude: float,
         rapid_api_key: str = os.environ.get("RAPID_API_KEY"),
-        es_client: Elasticsearch = None,
+        location_data: Dict[str, Any] = None,
     ) -> None:
 
-        self.location = location
         self.lat = latitude
         self.long = longitude
         self.rapid_api_key = rapid_api_key
         self.rapid_api_realtor_host = Config.RAPID_API_REALTOR_HOST
         self.rapid_api_realtor_url = f"https://{self.rapid_api_realtor_host}/properties/get-statistics"
-        self.es_client = es_client
 
         assert self.rapid_api_key, "Please set the RAPID_API_KEY environment variable or pass in the API key."
 
-        results = {"hits": {"hits": []}}
-        if self.es_client:
-            try:
-                results = es_client.search(
-                    index=Config.ELASTICSEARCH_INDEX,
-                    body={
-                        "size": 1,
-                        "sort": [{"asof_date": {"order": "desc"}}],
-                        "query": {
-                            "bool": {
-                                "must": [{"match_phrase": {"location": f"{self.location}"}}],
-                                "filter": [{"range": {"processed_date": {"gte": "now-30d"}}}],
-                            }
-                        },
-                    },
-                )
-            except Exception as e:
-                logger.error(f"Could not retrieve data for {location} from Elasticsearch: {e}")
-
-        if results["hits"]["hits"]:
-            logger.info(f"Retrieving data from Elasticsearch for {location}")
-            self.location_data = results["hits"]["hits"][0]["_source"]
-        else:
-            logger.info("Location {location} not found in Elasticsearch. Retrieving data from API.")
+        if not location_data:
             self.location_data = self._get_location_data()
-            self.as_of_date = datetime.strptime(
+
+            self.location_data["asof_date"] = datetime.strptime(
                 self.location_data["ErrorCode"]["ProductName"].split("|")[-1].strip(),
                 "%A, %B %d, %Y %I:%M:%S %p",
-            ).strftime("%Y-%m-%d")
-
-            self.enhance_location_data()
-
-            if self.es_client:
-                logger.info("Uploading data to Elasticsearch")
-                try:
-                    self.es_client.index(index="location_stats", doc_type="_doc", body=self.location_data)
-                except Exception as e:
-                    logger.error("Could not upload data to Elasticsearch: {e}")
+            ).date()
+        else:
+            self.location_data = location_data
 
         self.as_of_date = self.location_data["asof_date"]
 
@@ -111,21 +78,6 @@ class LocationStatsGenerator(object):
             .astype(dtype={"value": "int"})
             .sort_values(by=["value"], ascending=False)
         )
-
-    def enhance_location_data(self):
-        """
-        Enhances location data json returned from Rapid API with:
-           - longitude & latitude
-           - location name
-           - date the statistics were captured
-           - today's date
-        """
-
-        self.location_data["asof_date"] = datetime.strptime(self.as_of_date, "%Y-%m-%d").date()
-        self.location_data["processed_date"] = datetime.now()
-        self.location_data["location"] = self.location
-        self.location_data["latitude"] = self.lat
-        self.location_data["longitude"] = self.long
 
     @logger.catch
     def _get_location_data(self) -> Dict[str, Any]:
