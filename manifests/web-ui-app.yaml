@@ -14,7 +14,7 @@ spec:
         app: real-estate-hub
     spec:
       containers:
-        - image: docker.io/bigsidhu/real-estate-hub:c9fef8034ab0bbd2e0a37b97ec7f00db55984cc4
+        - image: docker.io/bigsidhu/real-estate-hub:598b1bfc87ec2aec826e2405b69bfd5ac40a62c6
           name: real-estate-hub
           imagePullPolicy: Always
           command: ["streamlit", "run", "app/main.py"]
