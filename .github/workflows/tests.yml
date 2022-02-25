@@ -17,7 +17,8 @@ on:
     paths-ignore:
       - "Dockerfile"
       - "*.md"
-      - "notebooks/**"      - ".streamlit/**"
+      - "notebooks/**"      
+      - ".streamlit/**"
       - ".gitignore"
       - "manifests/**"
     branches: [ main ]
