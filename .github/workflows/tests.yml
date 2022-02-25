@@ -9,7 +9,6 @@ on:
       - "Dockerfile"
       - "*.md"
       - "notebooks/**"
-      - "app/**"
       - ".streamlit/**"
       - ".gitignore"
       - "manifests/**"
@@ -18,9 +17,7 @@ on:
     paths-ignore:
       - "Dockerfile"
       - "*.md"
-      - "notebooks/**"
-      - "app/**"
-      - ".streamlit/**"
+      - "notebooks/**"      - ".streamlit/**"
       - ".gitignore"
       - "manifests/**"
     branches: [ main ]
