@@ -218,7 +218,8 @@ if location := st.text_input("Address, City, or Postal Code"):
 
     # Zolo stuff
     zolo_info = get_zolo_scraper(location)
-    if sold_history := zolo_info.get_sold_history():
+    sold_history = zolo_info.get_sold_history()
+    if sold_history is not None:
         with st.expander("Sold History"):
             st.table(sold_history)
 

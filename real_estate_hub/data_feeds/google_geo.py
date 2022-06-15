@@ -200,9 +200,12 @@ class GoogleGeo(object):
                         }
                         filtered_nearby_places.append(place)
                         break
+
         return filtered_nearby_places
 
-    def _get_all_results(self, endpoint: str, params: Dict[str, Any], all_data=[]) -> List[Dict[str, Any]]:
+    def _get_all_results(
+        self, endpoint: str, params: Dict[str, Any], all_data: List[str] = None
+    ) -> List[Dict[str, Any]]:
         """
         Gets all results for a given endpoint.
 
@@ -213,6 +216,8 @@ class GoogleGeo(object):
         Returns:
             List[Dict[str, Any]]: All results for the endpoint.
         """
+
+        all_data = all_data or []
 
         data = self.make_request(endpoint, params)
 
